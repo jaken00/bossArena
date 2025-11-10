@@ -9,7 +9,7 @@
 typedef struct Ability{
     int cooldown;
     int damage;
-    char* name[50];
+    char name[50];
     SDL_Scancode hotkey;
 } Ability;
 
@@ -19,12 +19,13 @@ typedef struct {
     int mana;
     SDL_Rect playerRect;
     Ability** abilities;
+    size_t ability_count;
 } Player;
 
-Ability* createAbility(char* name[50], int damage, int cooldown, SDL_Scancode hotkey){
+Ability* createAbility(char name[20], int damage, int cooldown, SDL_Scancode hotkey){
     Ability* ability = malloc(sizeof(Ability));
 
-    strcpy(ability->name, name);
+    strncpy(ability->name, name, sizeof ability->name);
     ability->damage = damage;
     ability->cooldown = cooldown;
     ability->hotkey = hotkey;
@@ -41,7 +42,9 @@ Player createPlayer(){
 
     SDL_Rect playerRect = {10, 10, 32, 32};
     player.playerRect = playerRect;
-    player.abilities = malloc(sizeof(Ability*) * 3);
+    player.ability_count = 3;
+
+    player.abilities = malloc(sizeof *player.abilities * player.ability_count);
     player.abilities[0] = createAbility("TEST", 10, 10, SDL_SCANCODE_Q);
     player.abilities[1] = createAbility("TEST2", 10, 10, SDL_SCANCODE_E);
     player.abilities[2] = createAbility("TEST3", 10, 10, SDL_SCANCODE_F);
@@ -82,7 +85,7 @@ int main(int argc, char* argv[]) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); 
     if(renderer == NULL){
-        printf('Unable to Create Renderer');
+        printf("Unable to Create Renderer");
     }
 
     Player player = createPlayer();
@@ -102,8 +105,14 @@ int main(int argc, char* argv[]) {
         if(keystate[SDL_SCANCODE_Q]){
             running = false;
         }
+        
+        
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
+        SDL_RenderClear(renderer);
+        SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
+        SDL_RenderDrawRect(renderer, &player.playerRect);
 
-
+        
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
