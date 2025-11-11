@@ -17,6 +17,7 @@ typedef struct Ability{
 typedef struct {
     int health;
     int mana;
+    double movespeed;
     SDL_Rect playerRect;
     Ability** abilities;
     size_t ability_count;
@@ -39,6 +40,7 @@ Player createPlayer(){
     Player player;
     player.health = 8;
     player.mana = 10;
+    player.movespeed = 300.0 / 1000.0; //deivde by 1k for milisecond conversion
 
     SDL_Rect playerRect = {10, 10, 32, 32};
     player.playerRect = playerRect;
@@ -60,9 +62,6 @@ void freePlayer(Player *player){
     free(player->abilities);
     free(player);
 }
-
-
-
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -90,9 +89,15 @@ int main(int argc, char* argv[]) {
 
     Player player = createPlayer();
 
-
     bool running = true;
+    int last = SDL_GetPerformanceCounter();
     while(running){
+        /*  DELTA TIME    */
+        int now = SDL_GetPerformanceCounter();
+        double deltaTime = 0;
+        deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
+        last = now;
+
         
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
@@ -105,6 +110,15 @@ int main(int argc, char* argv[]) {
         if(keystate[SDL_SCANCODE_Q]){
             running = false;
         }
+        else if(keystate[SDL_SCANCODE_W]){
+            double movement_calcualtion = player.movespeed * deltaTime;
+            player.playerRect.y -= movement_calcualtion;
+        }
+        else if(keystate[SDL_SCANCODE_S]){
+            double movement_calcualtion = player.movespeed * deltaTime;
+            player.playerRect.y += movement_calcualtion;
+        }
+
         
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
