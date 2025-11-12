@@ -34,6 +34,37 @@ typedef struct {
 } Enemy;
 
 
+//This should be turned into returning a Rect rather than rendering from the enemy function
+void enemyAttack(SDL_Renderer *renderer, Enemy *enemy, Player *player, int deltaTime){
+    switch(enemy->phase){
+        case 1:
+            printf("Case 1");
+            break;
+        default:
+            printf("Default");
+            break;  
+    }
+
+}
+
+
+
+void monitorEnemyPhase(Enemy *enemy){
+    if(enemy->health <= 64){
+    enemy->phase = 2;
+    }
+    else if (enemy->health <= 48)
+    {
+        enemy->phase = 3;
+    }
+    else if (enemy->health <= 32){
+        enemy->phase = 4;
+    }
+    else{
+        enemy->phase = 5;
+    }
+}
+
 Ability* createAbility(char name[6], int damage, int cooldown, SDL_Scancode hotkey, SDL_Rect abilityRect){
     Ability* ability = malloc(sizeof(Ability));
 
@@ -88,6 +119,8 @@ Player createPlayer(){
     return player;
 }
 
+
+
 void freePlayer(Player *player){
     for(int i = 0; i < 3; i++){
         free(player->abilities[i]);
@@ -128,6 +161,9 @@ int main(int argc, char* argv[]) {
     bool running = true;
     int last = SDL_GetPerformanceCounter();
 
+    double attackTimer = 0.0;
+    const double ATTACK_INTERVAL = 3000.0; //maybe turn into define? might not be needed
+
     SDL_ShowCursor(true);
     while(running){
         /*  DELTA TIME    */
@@ -135,6 +171,10 @@ int main(int argc, char* argv[]) {
         double deltaTime = 0;
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
         last = now;
+
+        attackTimer += deltaTime;
+
+
         
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
@@ -165,6 +205,12 @@ int main(int argc, char* argv[]) {
             double movement_calcualtion = player.movespeed * deltaTime;
             player.playerRect.x -= movement_calcualtion;
         }
+
+        if(attackTimer >= ATTACK_INTERVAL){
+            enemyAttack(renderer, &enemy, &player, deltaTime);
+            attackTimer = 0;
+        }
+
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
