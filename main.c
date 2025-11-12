@@ -88,9 +88,6 @@ Player createPlayer(){
     return player;
 }
 
-
-
-
 void freePlayer(Player *player){
     for(int i = 0; i < 3; i++){
         free(player->abilities[i]);
@@ -146,8 +143,6 @@ int main(int argc, char* argv[]) {
 
         int mouseX, mouseY;
         Uint32 button_pos = SDL_GetMouseState(&mouseX, &mouseY);
-        printf("\nCURRENT MOUSE X`: %d\n", mouseX);
-        printf("\nCURRENT MOUSE Y: %d\n", mouseY); //GET CURRENT PLAYER POS AND THEN DRAW LINE BETWEEN THE TWO
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
@@ -177,6 +172,9 @@ int main(int argc, char* argv[]) {
         SDL_RenderDrawRect(renderer, &player.playerRect);
         SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
         SDL_RenderDrawRect(renderer, &enemy.enemyRect);
+        SDL_SetRenderDrawColor(renderer, 0,0,255,255);
+        SDL_RenderDrawLine(renderer, player.playerRect.x, player.playerRect.y, mouseX, mouseY);
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
