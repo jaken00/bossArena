@@ -101,11 +101,12 @@ void freePlayer(Player *player){
 }
 
 int main(int argc, char* argv[]) {
+    //INIT FUNCTIONS
+    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-    
     SDL_Window* window = SDL_CreateWindow(
         "Boss Arena",
         SDL_WINDOWPOS_CENTERED,
@@ -113,35 +114,40 @@ int main(int argc, char* argv[]) {
         SCREEN_WIDTH, SCREEN_HEIGHT,
         SDL_WINDOW_SHOWN
     );
-    
     if (window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED); 
     if(renderer == NULL){
         printf("Unable to Create Renderer");
     }
 
+    //PLAYER AND ENEMY
     Player player = createPlayer();
     Enemy enemy = createEnemy();
 
+    //DELTA TIME
     bool running = true;
     int last = SDL_GetPerformanceCounter();
+
+    SDL_ShowCursor(true);
     while(running){
         /*  DELTA TIME    */
         int now = SDL_GetPerformanceCounter();
         double deltaTime = 0;
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
         last = now;
-
         
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running = false;
         }
 
+        int mouseX, mouseY;
+        Uint32 button_pos = SDL_GetMouseState(&mouseX, &mouseY);
+        printf("\nCURRENT MOUSE X`: %d\n", mouseX);
+        printf("\nCURRENT MOUSE Y: %d\n", mouseY); //GET CURRENT PLAYER POS AND THEN DRAW LINE BETWEEN THE TWO
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
@@ -164,8 +170,6 @@ int main(int argc, char* argv[]) {
             double movement_calcualtion = player.movespeed * deltaTime;
             player.playerRect.x -= movement_calcualtion;
         }
-
-        
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
@@ -173,9 +177,6 @@ int main(int argc, char* argv[]) {
         SDL_RenderDrawRect(renderer, &player.playerRect);
         SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
         SDL_RenderDrawRect(renderer, &enemy.enemyRect);
-
-
-        
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
