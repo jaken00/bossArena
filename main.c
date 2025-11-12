@@ -10,6 +10,7 @@ typedef struct Ability{
     int cooldown;
     int damage;
     char name[50];
+    SDL_Rect abilityRect;
     SDL_Scancode hotkey;
 } Ability;
 
@@ -23,36 +24,72 @@ typedef struct {
     size_t ability_count;
 } Player;
 
-Ability* createAbility(char name[20], int damage, int cooldown, SDL_Scancode hotkey){
+typedef struct {
+    int health;
+    int phase;
+    double movespeed;    
+    SDL_Rect enemyRect;
+    Ability** abilities;
+    size_t ability_count;
+} Enemy;
+
+
+Ability* createAbility(char name[6], int damage, int cooldown, SDL_Scancode hotkey, SDL_Rect abilityRect){
     Ability* ability = malloc(sizeof(Ability));
 
     strncpy(ability->name, name, sizeof ability->name);
     ability->damage = damage;
     ability->cooldown = cooldown;
     ability->hotkey = hotkey;
+    ability->abilityRect = abilityRect;
 
     return ability;
 }
 
+Enemy createEnemy(){
+    Enemy enemy;
 
+    enemy.health = 50;
+    enemy.phase = 1;
+    enemy.movespeed = 200.0 / 1000.0; //conver to milies!
+    SDL_Rect enemyRect = {SCREEN_WIDTH / 2, 50, 64, 64}; // NEED CHANGE THESE TO DEFINE CONSTS
+    printf("Rect: x=%d, y=%d, w=%d, h=%d\n", 
+       enemyRect.x, enemyRect.y, enemyRect.w, enemyRect.h);
+    enemy.enemyRect = enemyRect;
+    enemy.ability_count = 5;
+    enemy.abilities = malloc(sizeof *enemy.abilities * enemy.ability_count);
+    SDL_Rect placeHolderRect = {0,0,20,20};
+    enemy.abilities[0] = createAbility("BOSS1", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
+    enemy.abilities[1] = createAbility("BOSS2", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
+    enemy.abilities[2] = createAbility("BOSS3", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
+    enemy.abilities[3] = createAbility("BOSS4", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
+    enemy.abilities[4] = createAbility("BOSS5", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
+    return enemy;
+}
 
 Player createPlayer(){
     Player player;
     player.health = 8;
     player.mana = 10;
-    player.movespeed = 300.0 / 1000.0; //deivde by 1k for milisecond conversion
+    player.movespeed = 500.0 / 1000.0; //deivde by 1k for milisecond conversion
 
     SDL_Rect playerRect = {10, 10, 32, 32};
     player.playerRect = playerRect;
-    player.ability_count = 3;
+    player.ability_count = 4;
 
     player.abilities = malloc(sizeof *player.abilities * player.ability_count);
-    player.abilities[0] = createAbility("TEST", 10, 10, SDL_SCANCODE_Q);
-    player.abilities[1] = createAbility("TEST2", 10, 10, SDL_SCANCODE_E);
-    player.abilities[2] = createAbility("TEST3", 10, 10, SDL_SCANCODE_F);
+    SDL_Rect placeHolderRect = {0,0,20,20};
+    player.abilities[0] = createAbility("TEST", 10, 10, SDL_SCANCODE_Q, placeHolderRect);
+    player.abilities[1] = createAbility("TEST2", 10, 10, SDL_SCANCODE_E, placeHolderRect);
+    player.abilities[2] = createAbility("TEST3", 10, 10, SDL_SCANCODE_F, placeHolderRect);
+    SDL_Rect basic_shot_rect = {0,0,5,5};
+    player.abilities[3] = createAbility("Basic Shot", 1, 0, SDL_BUTTON_LEFT, basic_shot_rect);
 
     return player;
 }
+
+
+
 
 void freePlayer(Player *player){
     for(int i = 0; i < 3; i++){
@@ -88,6 +125,7 @@ int main(int argc, char* argv[]) {
     }
 
     Player player = createPlayer();
+    Enemy enemy = createEnemy();
 
     bool running = true;
     int last = SDL_GetPerformanceCounter();
@@ -110,21 +148,32 @@ int main(int argc, char* argv[]) {
         if(keystate[SDL_SCANCODE_Q]){
             running = false;
         }
-        else if(keystate[SDL_SCANCODE_W]){
+        if(keystate[SDL_SCANCODE_W]){
             double movement_calcualtion = player.movespeed * deltaTime;
             player.playerRect.y -= movement_calcualtion;
         }
-        else if(keystate[SDL_SCANCODE_S]){
+        if(keystate[SDL_SCANCODE_S]){
             double movement_calcualtion = player.movespeed * deltaTime;
             player.playerRect.y += movement_calcualtion;
+        }
+        if(keystate[SDL_SCANCODE_D]){
+            double movement_calcualtion = player.movespeed * deltaTime;
+            player.playerRect.x += movement_calcualtion;
+        }
+        if(keystate[SDL_SCANCODE_A]){
+            double movement_calcualtion = player.movespeed * deltaTime;
+            player.playerRect.x -= movement_calcualtion;
         }
 
         
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderDrawRect(renderer, &player.playerRect);
+        SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
+        SDL_RenderDrawRect(renderer, &enemy.enemyRect);
+
 
         
 
