@@ -10,6 +10,7 @@ typedef struct Ability{
     int cooldown;
     int damage;
     char name[50];
+    bool draw;
     SDL_Rect abilityRect;
     SDL_Scancode hotkey;
 } Ability;
@@ -33,21 +34,36 @@ typedef struct {
     size_t ability_count;
 } Enemy;
 
-
-//This should be turned into returning a Rect rather than rendering from the enemy function
-void enemyAttack(SDL_Renderer *renderer, Enemy *enemy, Player *player, int deltaTime){
+SDL_Rect getEnemyAttackRect(Enemy *enemy){
+    SDL_Rect abilityRect;
     switch(enemy->phase){
         case 1:
-            printf("Case 1");
+            abilityRect = enemy->abilities[0]->abilityRect;
+            abilityRect.x = enemy->enemyRect.x;
+            abilityRect.y = enemy->enemyRect.y;
             break;
         default:
-            printf("Default");
+            printf("DEFAULT CALLED\n");
             break;  
     }
 
+    return abilityRect;
 }
 
+void processAttack(SDL_Rect *enemyAbilityRect, SDL_Rect *playerRect, Enemy *enemy, double deltaTime ){
+    int playerX = playerRect->x;
+    int playerY = playerRect->y;
 
+    double projectile_move_speed = 10.0 / 1000.0; //This converts to miliseconds
+    enemy->abilities[0]->draw = true; //Maybe this is moved to monitor or we have value in struct called "active ability that keeps the index for ability" 
+    double total_move_speed = projectile_move_speed * deltaTime;
+    printf("RECT SHOULD BE CREATED HERE!\n");
+    //enemyAbilityRect->x = 500;
+    //enemyAbilityRect->y = 500;
+    enemyAbilityRect->x += (double)playerX * total_move_speed;
+    enemyAbilityRect->y += (double)playerY * total_move_speed;
+
+}
 
 void monitorEnemyPhase(Enemy *enemy){
     if(enemy->health <= 64){
@@ -61,11 +77,11 @@ void monitorEnemyPhase(Enemy *enemy){
         enemy->phase = 4;
     }
     else{
-        enemy->phase = 5;
+        enemy->phase = 1;
     }
 }
 
-Ability* createAbility(char name[6], int damage, int cooldown, SDL_Scancode hotkey, SDL_Rect abilityRect){
+Ability* createAbility(char name[6], int damage, int cooldown ,SDL_Scancode hotkey, SDL_Rect abilityRect){
     Ability* ability = malloc(sizeof(Ability));
 
     strncpy(ability->name, name, sizeof ability->name);
@@ -73,6 +89,7 @@ Ability* createAbility(char name[6], int damage, int cooldown, SDL_Scancode hotk
     ability->cooldown = cooldown;
     ability->hotkey = hotkey;
     ability->abilityRect = abilityRect;
+    ability->draw = false;
 
     return ability;
 }
@@ -80,16 +97,14 @@ Ability* createAbility(char name[6], int damage, int cooldown, SDL_Scancode hotk
 Enemy createEnemy(){
     Enemy enemy;
 
-    enemy.health = 50;
+    enemy.health = 80;
     enemy.phase = 1;
     enemy.movespeed = 200.0 / 1000.0; //conver to milies!
     SDL_Rect enemyRect = {SCREEN_WIDTH / 2, 50, 64, 64}; // NEED CHANGE THESE TO DEFINE CONSTS
-    printf("Rect: x=%d, y=%d, w=%d, h=%d\n", 
-       enemyRect.x, enemyRect.y, enemyRect.w, enemyRect.h);
     enemy.enemyRect = enemyRect;
     enemy.ability_count = 5;
     enemy.abilities = malloc(sizeof *enemy.abilities * enemy.ability_count);
-    SDL_Rect placeHolderRect = {0,0,20,20};
+    SDL_Rect placeHolderRect = {enemyRect.x,enemyRect.y+32+10,20,20};
     enemy.abilities[0] = createAbility("BOSS1", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
     enemy.abilities[1] = createAbility("BOSS2", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
     enemy.abilities[2] = createAbility("BOSS3", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
@@ -119,8 +134,6 @@ Player createPlayer(){
     return player;
 }
 
-
-
 void freePlayer(Player *player){
     for(int i = 0; i < 3; i++){
         free(player->abilities[i]);
@@ -132,7 +145,6 @@ void freePlayer(Player *player){
 
 int main(int argc, char* argv[]) {
     //INIT FUNCTIONS
-    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
@@ -164,6 +176,8 @@ int main(int argc, char* argv[]) {
     double attackTimer = 0.0;
     const double ATTACK_INTERVAL = 3000.0; //maybe turn into define? might not be needed
 
+
+    SDL_Rect enemyAbilityRect;
     SDL_ShowCursor(true);
     while(running){
         /*  DELTA TIME    */
@@ -207,9 +221,22 @@ int main(int argc, char* argv[]) {
         }
 
         if(attackTimer >= ATTACK_INTERVAL){
-            enemyAttack(renderer, &enemy, &player, deltaTime);
+            monitorEnemyPhase(&enemy);
+            enemyAbilityRect = getEnemyAttackRect(&enemy);
+            
             attackTimer = 0;
         }
+        /*
+            CHECK IF 3 SECONDS PASSED
+            GET PLAYER POSITION CURRENTLY
+            GET ENEMY POSITION
+            DO CALCULATION TO GET PROJECTILE ON PATH TO PLAYER
+            CREATE COPY OF RECT
+            IN MAIN RENDER LOOP
+            SEND IT 
+            IF OUTSIDE OF SCREEN FREE/DELETE RECT
+        */
+        processAttack(&enemyAbilityRect, &player.playerRect, &enemy, deltaTime);
 
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
@@ -219,8 +246,13 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
         SDL_RenderDrawRect(renderer, &enemy.enemyRect);
         SDL_SetRenderDrawColor(renderer, 0,0,255,255);
-        SDL_RenderDrawLine(renderer, player.playerRect.x, player.playerRect.y, mouseX, mouseY);
 
+        SDL_RenderDrawRect(renderer, &enemyAbilityRect);
+
+
+        //SDL_RenderDrawLine(renderer, player.playerRect.x, player.playerRect.y, mouseX, mouseY);
+        //need draw the projectiles, figure out selective draw maybe boolean? 
+        
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
