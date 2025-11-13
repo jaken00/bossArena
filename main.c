@@ -58,45 +58,14 @@ typedef struct {
     size_t projectile_capacity;
 } Enemy;
 
-SDL_Rect getEnemyAttackRect(Enemy *enemy){
-    SDL_Rect abilityRect;
-    switch(enemy->phase){
-        case 1:
-            abilityRect = enemy->abilities[0]->abilityRect;
-            abilityRect.x = enemy->enemyRect.x;
-            abilityRect.y = enemy->enemyRect.y;
-            break;
-        default:
-            printf("DEFAULT CALLED\n");
-            break;  
-    }
-
-    return abilityRect;
-}
-
-void processAttack(SDL_Rect *enemyAbilityRect, SDL_Rect *playerRect, Enemy *enemy, double deltaTime ){
-    int playerX = playerRect->x;
-    int playerY = playerRect->y;
-
-    double projectile_move_speed = 10.0 / 1000.0; //This converts to miliseconds
-    enemy->abilities[0]->draw = true; //Maybe this is moved to monitor or we have value in struct called "active ability that keeps the index for ability" 
-    double total_move_speed = projectile_move_speed * deltaTime;
-    printf("RECT SHOULD BE CREATED HERE!\n");
-    //enemyAbilityRect->x = 500;
-    //enemyAbilityRect->y = 500;
-    enemyAbilityRect->x += (double)playerX * total_move_speed;
-    enemyAbilityRect->y += (double)playerY * total_move_speed;
-
-}
-
 void fireProjectile(Enemy *enemy, int targetX, int targetY){
     if (enemy->projectile_count >= enemy->projectile_capacity){
-        enemy->projectile_count = 0; // this shouldnt be an issue as we can just reassign the values? 
+        enemy->projectile_count = 0; 
     }
 
     Projectile *proj = &enemy->projectiles[enemy->projectile_count];
     enemy->projectile_count++;
-    SDL_Rect projectileRect = {enemy->enemyRect.x, enemy->enemyRect.y, 5, 2};
+    SDL_Rect projectileRect = {enemy->enemyRect.x + (enemy->enemyRect.w /2), enemy->enemyRect.y + enemy->enemyRect.h, 8, 4};
     proj->projectileRect = projectileRect;
     proj->active = true;
     
@@ -300,7 +269,9 @@ int main(int argc, char* argv[]) {
         if(attackTimer >= ATTACK_INTERVAL){
 
             monitorEnemyPhase(&enemy);
-            fireProjectile(&enemy, player.playerRect.x, player.playerRect.y);
+            fireProjectile(&enemy, player.playerRect.x + (player.playerRect.w /2), player.playerRect.y + (player.playerRect.h /2));
+            printf("Player pos X: %d\n", player.playerRect.x);
+
             attackTimer = 0;
         }
         
