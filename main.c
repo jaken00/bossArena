@@ -2,9 +2,23 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
+
+/*
+1. Fix projectile spawns for Enemy
+2. Copy Projectile for player off of Space button
+3. Refactor abilities for enemy -> whole rework. 
+    3.1 Rather than having abilties change we are going to just overlap so ever 3 seconds a projectile then 
+    a cirlce will spawn under 64 hp then half the screen then 32 hp projectiles shot in cone then at 16hp frequence drops down to 2 seconds
+4. Rework player abilties
+5. get player dash working on E
+6. Reflect working on Q
+7. Textures added into game as well
+
+*/
 
 typedef struct Ability{
     int cooldown;
@@ -15,6 +29,12 @@ typedef struct Ability{
     SDL_Scancode hotkey;
 } Ability;
 
+typedef struct Projectile{
+    SDL_Rect projectileRect;
+    double velocityX;
+    double velocityY;
+    bool active;
+} Projectile;
 
 typedef struct {
     int health;
@@ -32,6 +52,10 @@ typedef struct {
     SDL_Rect enemyRect;
     Ability** abilities;
     size_t ability_count;
+    
+    Projectile* projectiles;
+    size_t projectile_count;
+    size_t projectile_capacity;
 } Enemy;
 
 SDL_Rect getEnemyAttackRect(Enemy *enemy){
@@ -63,6 +87,53 @@ void processAttack(SDL_Rect *enemyAbilityRect, SDL_Rect *playerRect, Enemy *enem
     enemyAbilityRect->x += (double)playerX * total_move_speed;
     enemyAbilityRect->y += (double)playerY * total_move_speed;
 
+}
+
+void fireProjectile(Enemy *enemy, int targetX, int targetY){
+    if (enemy->projectile_count >= enemy->projectile_capacity){
+        enemy->projectile_count = 0; // this shouldnt be an issue as we can just reassign the values? 
+    }
+
+    Projectile *proj = &enemy->projectiles[enemy->projectile_count];
+    enemy->projectile_count++;
+    SDL_Rect projectileRect = {enemy->enemyRect.x, enemy->enemyRect.y, 5, 2};
+    proj->projectileRect = projectileRect;
+    proj->active = true;
+    
+    int speed = 100;
+
+    int differenceX = targetX - enemy->enemyRect.x;
+    int differenceY = targetY - enemy->enemyRect.y;
+
+    double length = sqrt(differenceX * differenceX + differenceY * differenceY);
+
+    proj->velocityX = (differenceX / length) * speed;
+    proj->velocityY = (differenceY / length) * speed;
+
+
+}
+
+void updateProjectile(Enemy *enemy, double deltaTime){
+    for(int i = 0; i < enemy->projectile_count; i++){
+        Projectile* currentProjectile = &enemy->projectiles[i];
+        if(currentProjectile->active == true){
+            currentProjectile->projectileRect.x += ((double)currentProjectile->velocityX / 1000) * deltaTime;
+            currentProjectile->projectileRect.y += ((double)currentProjectile->velocityY / 1000) * deltaTime;
+        }
+
+        if(currentProjectile->projectileRect.x > SCREEN_WIDTH || currentProjectile->projectileRect.y > SCREEN_HEIGHT + currentProjectile->projectileRect.h){
+            currentProjectile->active = false;
+        }
+    }
+}
+
+void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy){
+    for(int i = 0; i < enemy->projectile_count; i++){
+        Projectile* currentProjectile = &enemy->projectiles[i];
+        if(currentProjectile->active == true){
+            SDL_RenderDrawRect(renderer, &currentProjectile->projectileRect);
+        }
+    }
 }
 
 void monitorEnemyPhase(Enemy *enemy){
@@ -110,6 +181,12 @@ Enemy createEnemy(){
     enemy.abilities[2] = createAbility("BOSS3", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
     enemy.abilities[3] = createAbility("BOSS4", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
     enemy.abilities[4] = createAbility("BOSS5", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
+
+    enemy.projectile_count = 0;
+    enemy.projectile_capacity = 100;
+
+    enemy.projectiles = malloc(sizeof(Projectile) * enemy.projectile_capacity);
+
     return enemy;
 }
 
@@ -221,23 +298,11 @@ int main(int argc, char* argv[]) {
         }
 
         if(attackTimer >= ATTACK_INTERVAL){
+
             monitorEnemyPhase(&enemy);
-            enemyAbilityRect = getEnemyAttackRect(&enemy);
-            
+            fireProjectile(&enemy, player.playerRect.x, player.playerRect.y);
             attackTimer = 0;
         }
-        /*
-            CHECK IF 3 SECONDS PASSED
-            GET PLAYER POSITION CURRENTLY
-            GET ENEMY POSITION
-            DO CALCULATION TO GET PROJECTILE ON PATH TO PLAYER
-            CREATE COPY OF RECT
-            IN MAIN RENDER LOOP
-            SEND IT 
-            IF OUTSIDE OF SCREEN FREE/DELETE RECT
-        */
-        processAttack(&enemyAbilityRect, &player.playerRect, &enemy, deltaTime);
-
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
@@ -246,13 +311,8 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
         SDL_RenderDrawRect(renderer, &enemy.enemyRect);
         SDL_SetRenderDrawColor(renderer, 0,0,255,255);
-
-        SDL_RenderDrawRect(renderer, &enemyAbilityRect);
-
-
-        //SDL_RenderDrawLine(renderer, player.playerRect.x, player.playerRect.y, mouseX, mouseY);
-        //need draw the projectiles, figure out selective draw maybe boolean? 
-        
+        updateProjectile(&enemy, deltaTime);
+        drawProjectiles(renderer, &enemy);
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
