@@ -10,17 +10,10 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-typedef struct Ability{
-    int cooldown;
-    int damage;
-    char name[50];
-    bool draw;
-    SDL_Rect abilityRect;
-    SDL_Scancode hotkey;
-} Ability;
-
 typedef struct Projectile{
     SDL_Rect projectileRect;
+    double posX;
+    double posY;
     double velocityX;
     double velocityY;
     bool active;
@@ -31,7 +24,6 @@ typedef struct {
     int mana;
     double movespeed;
     SDL_Rect playerRect;
-    Ability** abilities;
     size_t ability_count;
 } Player;
 
@@ -40,7 +32,6 @@ typedef struct {
     int phase;
     double movespeed;    
     SDL_Rect enemyRect;
-    Ability** abilities;
     size_t ability_count;
     
     Projectile* projectiles;
@@ -53,13 +44,12 @@ Enemy createEnemy();
 
 void freePlayer(Player *player);
 
-Ability* createAbility(char name[6], int damage, int cooldown ,SDL_Scancode hotkey, SDL_Rect abilityRect);
-
 void monitorEnemyPhase(Enemy *enemy);
 void fireProjectile(Enemy *enemy, int targetX, int targetY);
 void updateProjectile(Enemy *enemy, double deltaTime);
 void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy);
 
+void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime);
 
 
 

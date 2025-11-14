@@ -66,28 +66,19 @@ int main(int argc, char* argv[]) {
         if(keystate[SDL_SCANCODE_Q]){
             running = false;
         }
-        if(keystate[SDL_SCANCODE_W]){
-            double movement_calcualtion = player.movespeed * deltaTime;
-            player.playerRect.y -= movement_calcualtion;
-        }
-        if(keystate[SDL_SCANCODE_S]){
-            double movement_calcualtion = player.movespeed * deltaTime;
-            player.playerRect.y += movement_calcualtion;
-        }
-        if(keystate[SDL_SCANCODE_D]){
-            double movement_calcualtion = player.movespeed * deltaTime;
-            player.playerRect.x += movement_calcualtion;
-        }
-        if(keystate[SDL_SCANCODE_A]){
-            double movement_calcualtion = player.movespeed * deltaTime;
-            player.playerRect.x -= movement_calcualtion;
-        }
+
+        update_player_movement(&player, keystate, deltaTime);
 
         if(attackTimer >= ATTACK_INTERVAL){
 
             monitorEnemyPhase(&enemy);
-            fireProjectile(&enemy, player.playerRect.x + (player.playerRect.w /2), player.playerRect.y + (player.playerRect.h /2));
+            fireProjectile(
+                &enemy,
+                player.playerRect.x + player.playerRect.w / 2,
+                player.playerRect.y + player.playerRect.h / 2
+            );
             printf("Player pos X: %d\n", player.playerRect.x);
+            printf("Player pos Y: %d\n", player.playerRect.y);
 
             attackTimer = 0;
         }
@@ -95,9 +86,9 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderDrawRect(renderer, &player.playerRect);
+        SDL_RenderFillRect(renderer, &player.playerRect);
         SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
-        SDL_RenderDrawRect(renderer, &enemy.enemyRect);
+        SDL_RenderFillRect(renderer, &enemy.enemyRect);
         SDL_SetRenderDrawColor(renderer, 0,0,255,255);
         updateProjectile(&enemy, deltaTime);
         drawProjectiles(renderer, &enemy);

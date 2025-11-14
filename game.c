@@ -5,31 +5,63 @@ void fireProjectile(Enemy *enemy, int targetX, int targetY){
         enemy->projectile_count = 0; 
     }
 
-    Projectile *proj = &enemy->projectiles[enemy->projectile_count];
-    enemy->projectile_count++;
-    SDL_Rect projectileRect = {enemy->enemyRect.x + (enemy->enemyRect.w /2), enemy->enemyRect.y + enemy->enemyRect.h, 8, 4};
-    proj->projectileRect = projectileRect;
-    proj->active = true;
+    Projectile *proj = &enemy->projectiles[enemy->projectile_count++];
     
-    int speed = 100;
+    double enemyCx      = enemy->enemyRect.x + enemy->enemyRect.w / 2.0;
+    double enemyBottomY = enemy->enemyRect.y + enemy->enemyRect.h;
 
-    int differenceX = targetX - enemy->enemyRect.x;
-    int differenceY = targetY - enemy->enemyRect.y;
+    int projWidth = 10;
+    int projHeight = 10;
 
-    double length = sqrt(differenceX * differenceX + differenceY * differenceY);
+    SDL_Rect projectileRect = {
+        (int)(enemyCx - projWidth / 2.0),
+        (int)(enemyBottomY - projHeight / 2.0),
+        projWidth,
+        projHeight
+    };
+    proj->projectileRect = projectileRect;
+    proj->posX = projectileRect.x;
+    proj->posY = projectileRect.y;
+    proj->active = true;
 
-    proj->velocityX = (differenceX / length) * speed;
-    proj->velocityY = (differenceY / length) * speed;
+    double projCx = proj->projectileRect.x + proj->projectileRect.w / 2.0;
+    double projCy = proj->projectileRect.y + proj->projectileRect.h / 2.0;
 
+    double targetCx = (double)targetX;
+    double targetCy = (double)targetY;
 
+    double dx = targetCx - projCx;
+    double dy = targetCy - projCy;
+
+    double length = sqrt(dx * dx + dy * dy);
+    if (length == 0.0) {
+        proj->velocityX = 0.0;
+        proj->velocityY = 0.0;
+        return;
+    }
+
+    double speed = 300.0;
+    proj->velocityX = (dx / length) * speed;
+    proj->velocityY = (dy / length) * speed;
+
+    printf("proj start: (%f, %f)\n", projCx, projCy);
+    printf("target:     (%f, %f)\n", targetCx, targetCy);
+    printf("dir:        (%f, %f)\n", dx, dy);
+    printf("vel:        (%f, %f)\n", proj->velocityX, proj->velocityY);
 }
+
+
 
 void updateProjectile(Enemy *enemy, double deltaTime){
     for(int i = 0; i < enemy->projectile_count; i++){
         Projectile* currentProjectile = &enemy->projectiles[i];
         if(currentProjectile->active == true){
-            currentProjectile->projectileRect.x += ((double)currentProjectile->velocityX / 1000) * deltaTime;
-            currentProjectile->projectileRect.y += ((double)currentProjectile->velocityY / 1000) * deltaTime;
+            double deltaSeconds = deltaTime / 1000.0;
+            currentProjectile->posX += currentProjectile->velocityX * deltaSeconds;
+            currentProjectile->posY += currentProjectile->velocityY * deltaSeconds;
+
+            currentProjectile->projectileRect.x = (int)currentProjectile->posX;
+            currentProjectile->projectileRect.y = (int)currentProjectile->posY;
         }
 
         if(currentProjectile->projectileRect.x > SCREEN_WIDTH || currentProjectile->projectileRect.y > SCREEN_HEIGHT + currentProjectile->projectileRect.h){
@@ -42,7 +74,7 @@ void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy){
     for(int i = 0; i < enemy->projectile_count; i++){
         Projectile* currentProjectile = &enemy->projectiles[i];
         if(currentProjectile->active == true){
-            SDL_RenderDrawRect(renderer, &currentProjectile->projectileRect);
+            SDL_RenderFillRect(renderer, &currentProjectile->projectileRect);
         }
     }
 }
@@ -63,18 +95,6 @@ void monitorEnemyPhase(Enemy *enemy){
     }
 }
 
-Ability* createAbility(char name[6], int damage, int cooldown ,SDL_Scancode hotkey, SDL_Rect abilityRect){
-    Ability* ability = malloc(sizeof(Ability));
-
-    strncpy(ability->name, name, sizeof ability->name);
-    ability->damage = damage;
-    ability->cooldown = cooldown;
-    ability->hotkey = hotkey;
-    ability->abilityRect = abilityRect;
-    ability->draw = false;
-
-    return ability;
-}
 
 Enemy createEnemy(){
     Enemy enemy;
@@ -85,17 +105,10 @@ Enemy createEnemy(){
     SDL_Rect enemyRect = {SCREEN_WIDTH / 2, 50, 64, 64}; // NEED CHANGE THESE TO DEFINE CONSTS
     enemy.enemyRect = enemyRect;
     enemy.ability_count = 5;
-    enemy.abilities = malloc(sizeof *enemy.abilities * enemy.ability_count);
-    SDL_Rect placeHolderRect = {enemyRect.x,enemyRect.y+32+10,20,20};
-    enemy.abilities[0] = createAbility("BOSS1", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
-    enemy.abilities[1] = createAbility("BOSS2", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
-    enemy.abilities[2] = createAbility("BOSS3", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
-    enemy.abilities[3] = createAbility("BOSS4", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
-    enemy.abilities[4] = createAbility("BOSS5", 10, 10, SDL_SCANCODE_UNKNOWN, placeHolderRect);
-
+    
+    //projectile logic
     enemy.projectile_count = 0;
     enemy.projectile_capacity = 100;
-
     enemy.projectiles = malloc(sizeof(Projectile) * enemy.projectile_capacity);
 
     return enemy;
@@ -111,22 +124,19 @@ Player createPlayer(){
     player.playerRect = playerRect;
     player.ability_count = 4;
 
-    player.abilities = malloc(sizeof *player.abilities * player.ability_count);
-    SDL_Rect placeHolderRect = {0,0,20,20};
-    player.abilities[0] = createAbility("TEST", 10, 10, SDL_SCANCODE_Q, placeHolderRect);
-    player.abilities[1] = createAbility("TEST2", 10, 10, SDL_SCANCODE_E, placeHolderRect);
-    player.abilities[2] = createAbility("TEST3", 10, 10, SDL_SCANCODE_F, placeHolderRect);
-    SDL_Rect basic_shot_rect = {0,0,5,5};
-    player.abilities[3] = createAbility("Basic Shot", 1, 0, SDL_BUTTON_LEFT, basic_shot_rect);
 
     return player;
 }
 
 void freePlayer(Player *player){
-    for(int i = 0; i < 3; i++){
-        free(player->abilities[i]);
-    }
-
-    free(player->abilities);
     free(player);
+}
+
+void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime){
+        double movement = player->movespeed * deltaTime;
+
+        if (keystate[SDL_SCANCODE_W]) player->playerRect.y -= movement;
+        if (keystate[SDL_SCANCODE_S]) player->playerRect.y += movement;
+        if (keystate[SDL_SCANCODE_D]) player->playerRect.x += movement;
+        if (keystate[SDL_SCANCODE_A]) player->playerRect.x -= movement;
 }
