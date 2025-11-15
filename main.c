@@ -65,6 +65,7 @@ int main(int argc, char* argv[]) {
 
         update_player_movement(&player, keystate, deltaTime);
         enemy_attack_timer(deltaTime, &attackTimer, &enemy, player);
+        enemyProjectileCollisionCall(&player, &enemy);
         move_enemy(&enemy, &player.playerRect, deltaTime);
 
 

@@ -23,6 +23,7 @@ void fireProjectile(Enemy *enemy, int targetX, int targetY){
     proj->posX = projectileRect.x;
     proj->posY = projectileRect.y;
     proj->active = true;
+    proj->damageValue = 1;
 
     double projCx = proj->projectileRect.x + proj->projectileRect.w / 2.0;
     double projCy = proj->projectileRect.y + proj->projectileRect.h / 2.0;
@@ -70,19 +71,64 @@ void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy){
         Projectile* currentProjectile = &enemy->projectiles[i];
         if(currentProjectile->active == true){
             SDL_RenderFillRect(renderer, &currentProjectile->projectileRect);
+
         }
     }
 }
 
+void enemyProjectileCollisionCall(Player *player, Enemy *enemy){
+    for(int i = 0; i < enemy->projectile_count; i++){
+        Projectile* currentProjectile = &enemy->projectiles[i];
+        bool hit = projectileHit(&player->playerRect, &currentProjectile->projectileRect);
+        if(hit){
+            takeDamage(&player->health.hp, currentProjectile->damageValue);
+        }
+
+    }
+}
+
+bool projectileHit(SDL_Rect *target, SDL_Rect *source){
+    int targetLeft = target->x;
+    int targetRight = target->x + target->w;
+    int targetTop = target->y;
+    int TargetBot = target->y + target->h;
+
+    int sourceLeft = source->x;
+    int sourceRight = source->x + source->w;
+    int sourceTop = source->y;
+    int sourceBot = source->y + source->h;
+
+    if(sourceLeft >= targetRight){
+        return false;
+    }
+    if(sourceRight <= targetLeft){
+        return false;
+    }
+    if(sourceTop >= TargetBot){
+        return false;
+    }
+    if(sourceBot <= targetTop){
+        return false;
+    }
+
+    return true;
+
+}
+
+void takeDamage(Health *health, int damage){
+    health->hp -= damage;
+}
+
+
 void monitorEnemyPhase(Enemy *enemy){
-    if(enemy->health <= 64){
+    if(enemy->health.hp <= 64){
     enemy->phase = 2;
     }
-    else if (enemy->health <= 48)
+    else if (enemy->health.hp <= 48)
     {
         enemy->phase = 3;
     }
-    else if (enemy->health <= 32){
+    else if (enemy->health.hp <= 32){
         enemy->phase = 4;
     }
     else{
@@ -92,10 +138,16 @@ void monitorEnemyPhase(Enemy *enemy){
 
 
 
+
+
+
 Enemy createEnemy(){
     Enemy enemy;
+    Health enemyHP;
+    enemyHP.hp = 80;
+    enemyHP.maxHp = 80;
 
-    enemy.health = 80;
+    enemy.health = enemyHP;
     enemy.phase = 1;
     enemy.movespeed = 200.0 / 1000.0; //conver to milies!
     SDL_Rect enemyRect = {SCREEN_WIDTH / 2, 50, 64, 64}; // NEED CHANGE THESE TO DEFINE CONSTS
@@ -112,7 +164,11 @@ Enemy createEnemy(){
 
 Player createPlayer(){
     Player player;
-    player.health = 8;
+    Health playerHP;
+    playerHP.hp = 8;
+    playerHP.maxHp = 8;
+    player.health = playerHP;
+
     player.mana = 10;
     player.movespeed = 500.0 / 1000.0; //deivde by 1k for milisecond conversion
 

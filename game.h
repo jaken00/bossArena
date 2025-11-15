@@ -12,6 +12,11 @@
 
 #define ATTACK_INTERVAL 500
 
+typedef struct {
+    int hp;
+    int maxHp;
+} Health;
+
 typedef struct Projectile{
     SDL_Rect projectileRect;
     double posX;
@@ -19,23 +24,24 @@ typedef struct Projectile{
     double velocityX;
     double velocityY;
     bool active;
+    int damageValue;
 } Projectile;
 
 typedef struct {
-    int health;
     int mana;
     double movespeed;
     SDL_Rect playerRect;
     size_t ability_count;
+    Health health;
 } Player;
 
 typedef struct {
-    int health;
     int phase;
     double movespeed;    
     SDL_Rect enemyRect;
     size_t ability_count;
-    
+    Health health;
+
     Projectile* projectiles;
     size_t projectile_count;
     size_t projectile_capacity;
@@ -54,8 +60,10 @@ void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy);
 void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime);
 void enemy_attack_timer(double deltaTime, double *attackTimer, Enemy *enemy, Player player);
 void move_enemy(Enemy *enemy, SDL_Rect *playerRect, double deltaTime);
+bool projectileHit(SDL_Rect *target, SDL_Rect *source);
+void enemyProjectileCollisionCall(Player *player, Enemy *enemy);
 
-
+void takeDamage(Health *hp, int damage);
 
 
 
