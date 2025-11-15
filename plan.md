@@ -16,7 +16,7 @@
 ## Gameplay
 - [ ] Player Basic Attack
 - [ ] Player Roll/Dodge
-- [ ] Enemy Following Player
+- [x] Enemy Following Player
 - [ ] Player Block (Reflect Ability)
 - [ ] Player Reload
 - [ ] Roll Cooldown 
@@ -26,10 +26,10 @@
 - [ ] Enemy Line attack
 - [ ] Enemy Cone attack
 - [ ] All attacks (Enrage phase)
-- [ ] Attack collision detection
+- [x] P1 Enemy Attack collision detection
 
 ## UI
-- [ ] Player health bar
+- [x] Player health bar
 - [ ] Roll Cooldown Indicator
 - [ ] Block Cooldown Indicator
 - [ ] Start Screen

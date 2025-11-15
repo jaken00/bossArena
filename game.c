@@ -81,7 +81,7 @@ void enemyProjectileCollisionCall(Player *player, Enemy *enemy){
         Projectile* currentProjectile = &enemy->projectiles[i];
         bool hit = projectileHit(&player->playerRect, &currentProjectile->projectileRect);
         if(hit){
-            takeDamage(&player->health.hp, currentProjectile->damageValue);
+            takeDamage(&player->health, currentProjectile->damageValue);
         }
 
     }
@@ -165,7 +165,7 @@ Enemy createEnemy(){
 Player createPlayer(){
     Player player;
     Health playerHP;
-    playerHP.hp = 8;
+    playerHP.hp = 5;
     playerHP.maxHp = 8;
     player.health = playerHP;
 

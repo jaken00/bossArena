@@ -1,9 +1,11 @@
 //C:\msys64\msys2_shell.cmd -defterm -here -no-start -mingw64
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 #include "game.h"
+#include "ui.h"
 
 int main(int argc, char* argv[]) {
     //INIT FUNCTIONS
@@ -36,9 +38,17 @@ int main(int argc, char* argv[]) {
     bool running = true;
     int last = SDL_GetPerformanceCounter();
 
+    Sprite hearts;
     
+    const double animation_frame_time = 100.0;
 
+    hearts = spriteLoad(renderer, "assets/hearty_strip6.png", 64, 64, 6);
+    sprite_SetFrame(&hearts, 0);
+
+    
+    double animation_timer = 0.0;
     double attackTimer = 0.0;
+    
     SDL_Rect enemyAbilityRect;
     SDL_ShowCursor(true);
     while(running){
@@ -48,7 +58,7 @@ int main(int argc, char* argv[]) {
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
         last = now;
 
-        //attackTimer += deltaTime;
+        animation_timer += deltaTime;
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running = false;
@@ -79,6 +89,21 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0,0,255,255);
         updateProjectile(&enemy, deltaTime);
         drawProjectiles(renderer, &enemy);
+
+        if(animation_timer >= animation_frame_time){
+            animation_timer -= animation_frame_time;
+            int next = hearts.current_frame += 1;
+
+            if(next >= hearts.frame_count){
+                next = 0;
+            }
+            sprite_SetFrame(&hearts, next);
+        }
+
+        render_sprite_per_health(renderer, &hearts, player.health.hp);
+
+
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
