@@ -10,6 +10,8 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
+#define ATTACK_INTERVAL 500
+
 typedef struct Projectile{
     SDL_Rect projectileRect;
     double posX;
@@ -50,6 +52,8 @@ void updateProjectile(Enemy *enemy, double deltaTime);
 void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy);
 
 void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime);
+void enemy_attack_timer(double deltaTime, double *attackTimer, Enemy *enemy, Player player);
+void move_enemy(Enemy *enemy, SDL_Rect *playerRect, double deltaTime);
 
 
 

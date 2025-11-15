@@ -10,8 +10,8 @@
 - [ ] Victory Screen (stylized AI Gen)
 
 ## Project General
-- [ ] Refactor ability code
-- [ ] Seperate game logic out into game.h and main
+- [x] Refactor ability code
+- [x] Seperate game logic out into game.h and main
 
 ## Gameplay
 - [ ] Player Basic Attack

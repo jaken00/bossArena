@@ -44,12 +44,7 @@ void fireProjectile(Enemy *enemy, int targetX, int targetY){
     proj->velocityX = (dx / length) * speed;
     proj->velocityY = (dy / length) * speed;
 
-    printf("proj start: (%f, %f)\n", projCx, projCy);
-    printf("target:     (%f, %f)\n", targetCx, targetCy);
-    printf("dir:        (%f, %f)\n", dx, dy);
-    printf("vel:        (%f, %f)\n", proj->velocityX, proj->velocityY);
 }
-
 
 
 void updateProjectile(Enemy *enemy, double deltaTime){
@@ -96,6 +91,7 @@ void monitorEnemyPhase(Enemy *enemy){
 }
 
 
+
 Enemy createEnemy(){
     Enemy enemy;
 
@@ -135,8 +131,56 @@ void freePlayer(Player *player){
 void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime){
         double movement = player->movespeed * deltaTime;
 
-        if (keystate[SDL_SCANCODE_W]) player->playerRect.y -= movement;
-        if (keystate[SDL_SCANCODE_S]) player->playerRect.y += movement;
-        if (keystate[SDL_SCANCODE_D]) player->playerRect.x += movement;
-        if (keystate[SDL_SCANCODE_A]) player->playerRect.x -= movement;
+        if (keystate[SDL_SCANCODE_W] && player->playerRect.y > 0){
+                player->playerRect.y -= movement;
+            }
+
+        if (keystate[SDL_SCANCODE_S] && player->playerRect.y < SCREEN_HEIGHT - player->playerRect.h){
+                player->playerRect.y += movement;
+        
+            }
+
+        if (keystate[SDL_SCANCODE_D] && player->playerRect.x < SCREEN_WIDTH - player->playerRect.w){
+            player->playerRect.x += movement;
+        } 
+        if (keystate[SDL_SCANCODE_A] && player->playerRect.x > 0){
+            player->playerRect.x -= movement;
+        } 
 }
+
+void enemy_attack_timer(double deltaTime, double *attackTimer, Enemy *enemy, Player player){
+    *attackTimer += deltaTime;
+    if(*attackTimer >= ATTACK_INTERVAL){
+
+        monitorEnemyPhase(enemy);
+        fireProjectile(
+            enemy,
+            player.playerRect.x + player.playerRect.w / 2,
+            player.playerRect.y + player.playerRect.h / 2
+        );
+
+        *attackTimer = 0;
+    }
+}
+
+void move_enemy(Enemy *enemy, SDL_Rect *playerRect, double deltaTime){
+    double movespeed = (enemy->movespeed/1000) * deltaTime;
+    int diffx = enemy->enemyRect.x - playerRect->x;
+    int diffy = enemy->enemyRect.y - playerRect->y;
+
+
+    if(diffx > 0){
+        enemy->enemyRect.x -= playerRect->x * movespeed;
+    }
+    if(diffx < 0){
+        enemy->enemyRect.x += playerRect->x * movespeed;
+    }
+    if(diffy > 0){
+        enemy->enemyRect.y -= playerRect->y * movespeed;
+    }
+    if(diffy < 0){
+        enemy->enemyRect.y += playerRect->y * movespeed;
+    }
+
+}
+

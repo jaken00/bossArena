@@ -36,10 +36,9 @@ int main(int argc, char* argv[]) {
     bool running = true;
     int last = SDL_GetPerformanceCounter();
 
+    
+
     double attackTimer = 0.0;
-    const double ATTACK_INTERVAL = 3000.0; //maybe turn into define? might not be needed
-
-
     SDL_Rect enemyAbilityRect;
     SDL_ShowCursor(true);
     while(running){
@@ -49,17 +48,14 @@ int main(int argc, char* argv[]) {
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
         last = now;
 
-        attackTimer += deltaTime;
-
-
-        
+        //attackTimer += deltaTime;
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running = false;
         }
 
         int mouseX, mouseY;
-        Uint32 button_pos = SDL_GetMouseState(&mouseX, &mouseY);
+        Uint32 mouse_pos = SDL_GetMouseState(&mouseX, &mouseY);
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
 
@@ -68,20 +64,10 @@ int main(int argc, char* argv[]) {
         }
 
         update_player_movement(&player, keystate, deltaTime);
+        enemy_attack_timer(deltaTime, &attackTimer, &enemy, player);
+        move_enemy(&enemy, &player.playerRect, deltaTime);
 
-        if(attackTimer >= ATTACK_INTERVAL){
 
-            monitorEnemyPhase(&enemy);
-            fireProjectile(
-                &enemy,
-                player.playerRect.x + player.playerRect.w / 2,
-                player.playerRect.y + player.playerRect.h / 2
-            );
-            printf("Player pos X: %d\n", player.playerRect.x);
-            printf("Player pos Y: %d\n", player.playerRect.y);
-
-            attackTimer = 0;
-        }
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
