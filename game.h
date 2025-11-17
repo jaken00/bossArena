@@ -34,6 +34,10 @@ typedef struct {
     SDL_Rect playerRect;
     size_t ability_count;
     Health health;
+
+    Projectile* projectiles;
+    size_t projectile_count;
+    size_t projectile_capacity;
 } Player;
 
 typedef struct {

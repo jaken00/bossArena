@@ -6,6 +6,7 @@
 #include <math.h>
 #include "game.h"
 #include "ui.h"
+#include "render.h"
 
 int main(int argc, char* argv[]) {
     //INIT FUNCTIONS
@@ -82,10 +83,7 @@ int main(int argc, char* argv[]) {
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        SDL_RenderFillRect(renderer, &player.playerRect);
-        SDL_SetRenderDrawColor(renderer, 255, 0,0,255);
-        SDL_RenderFillRect(renderer, &enemy.enemyRect);
+        renderEntities(renderer, &player.playerRect, &enemy.enemyRect);
         SDL_SetRenderDrawColor(renderer, 0,0,255,255);
         updateProjectile(&enemy, deltaTime);
         drawProjectiles(renderer, &enemy);
@@ -101,9 +99,6 @@ int main(int argc, char* argv[]) {
         }
 
         render_sprite_per_health(renderer, &hearts, player.health.hp);
-
-
-
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);

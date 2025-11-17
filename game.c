@@ -169,6 +169,7 @@ Enemy createEnemy(){
     enemy.enemyRect = enemyRect;
     enemy.ability_count = 5;
     
+    
     //projectile logic
     enemy.projectile_count = 0;
     enemy.projectile_capacity = 100;
@@ -192,8 +193,12 @@ Player createPlayer(){
     player.playerRect = playerRect;
     player.ability_count = 4;
 
+    player.projectile_count = 0;
+    player.projectile_capacity = 100;
+    player.projectiles = malloc(sizeof(Projectile) * player.projectile_capacity);
 
     return player;
+
 }
 
 void freePlayer(Player *player){
