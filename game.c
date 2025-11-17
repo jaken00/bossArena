@@ -77,17 +77,32 @@ void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy){
 }
 
 void enemyProjectileCollisionCall(Player *player, Enemy *enemy){
+
+    const Uint32 COOLDOWN_DURATION = 500;
+    Uint32 now = SDL_GetTicks();
+
+    bool canCollide = (now - player->lastHitTime >= COOLDOWN_DURATION);
+
+    if(!canCollide) return;
+
     for(int i = 0; i < enemy->projectile_count; i++){
         Projectile* currentProjectile = &enemy->projectiles[i];
-        bool hit = projectileHit(&player->playerRect, &currentProjectile->projectileRect);
-        if(hit){
-            takeDamage(&player->health, currentProjectile->damageValue);
+        if(!currentProjectile->active){
+            continue;
         }
 
+        if(SDL_HasIntersection(&player->playerRect, &currentProjectile->projectileRect)){
+            currentProjectile->active = false;
+            takeDamage(&player->health, currentProjectile->damageValue);
+            player->lastHitTime = now;
+            break;
+        }
     }
 }
 
 bool projectileHit(SDL_Rect *target, SDL_Rect *source){
+
+
     int targetLeft = target->x;
     int targetRight = target->x + target->w;
     int targetTop = target->y;
@@ -169,6 +184,7 @@ Player createPlayer(){
     playerHP.maxHp = 8;
     player.health = playerHP;
 
+    player.lastHitTime = 0;
     player.mana = 10;
     player.movespeed = 500.0 / 1000.0; //deivde by 1k for milisecond conversion
 

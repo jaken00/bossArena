@@ -30,6 +30,7 @@ typedef struct Projectile{
 typedef struct {
     int mana;
     double movespeed;
+    Uint32 lastHitTime;
     SDL_Rect playerRect;
     size_t ability_count;
     Health health;
