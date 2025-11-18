@@ -59,14 +59,19 @@ void freePlayer(Player *player);
 
 void monitorEnemyPhase(Enemy *enemy);
 void fireProjectile(Enemy *enemy, int targetX, int targetY);
-void updateProjectile(Enemy *enemy, double deltaTime);
-void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy);
+void updateProjectile(Enemy *enemy, double deltaTime); //move these into one (tkae both player and enemy proj)
+void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy, Player *player);
 
 void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime);
 void enemy_attack_timer(double deltaTime, double *attackTimer, Enemy *enemy, Player player);
 void move_enemy(Enemy *enemy, SDL_Rect *playerRect, double deltaTime);
 bool projectileHit(SDL_Rect *target, SDL_Rect *source);
 void enemyProjectileCollisionCall(Player *player, Enemy *enemy);
+
+void playerFire(Player *player, int mouseX, int mouseY);
+void playerProjUpdate(Player *player, double deltaTime);
+
+
 
 void takeDamage(Health *hp, int damage);
 

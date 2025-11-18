@@ -73,6 +73,9 @@ int main(int argc, char* argv[]) {
         if(keystate[SDL_SCANCODE_Q]){
             running = false;
         }
+        if(keystate[SDL_SCANCODE_SPACE]){
+            playerFire(&player, mouseX, mouseY);
+        }
 
         update_player_movement(&player, keystate, deltaTime);
         enemy_attack_timer(deltaTime, &attackTimer, &enemy, player);
@@ -86,7 +89,8 @@ int main(int argc, char* argv[]) {
         renderEntities(renderer, &player.playerRect, &enemy.enemyRect);
         SDL_SetRenderDrawColor(renderer, 0,0,255,255);
         updateProjectile(&enemy, deltaTime);
-        drawProjectiles(renderer, &enemy);
+        playerProjUpdate(&player, deltaTime);
+        drawProjectiles(renderer, &enemy, &player);
 
         if(animation_timer >= animation_frame_time){
             animation_timer -= animation_frame_time;

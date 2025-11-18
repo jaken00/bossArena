@@ -66,12 +66,19 @@ void updateProjectile(Enemy *enemy, double deltaTime){
     }
 }
 
-void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy){
+void drawProjectiles(SDL_Renderer* renderer, Enemy *enemy, Player *player){
     for(int i = 0; i < enemy->projectile_count; i++){
-        Projectile* currentProjectile = &enemy->projectiles[i];
-        if(currentProjectile->active == true){
-            SDL_RenderFillRect(renderer, &currentProjectile->projectileRect);
+        Projectile* currentEnemyProjectile = &enemy->projectiles[i];
+        if(currentEnemyProjectile->active == true){
+            SDL_RenderFillRect(renderer, &currentEnemyProjectile->projectileRect);
 
+        }
+    }
+    for(int i = 0; i < player->projectile_count; i++){
+        Projectile* currentPlayerProjectile = &player->projectiles[i];
+
+        if(currentPlayerProjectile->active == true){
+            SDL_RenderFillRect(renderer, &currentPlayerProjectile->projectileRect);
         }
     }
 }
@@ -150,11 +157,6 @@ void monitorEnemyPhase(Enemy *enemy){
         enemy->phase = 1;
     }
 }
-
-
-
-
-
 
 Enemy createEnemy(){
     Enemy enemy;
@@ -261,3 +263,66 @@ void move_enemy(Enemy *enemy, SDL_Rect *playerRect, double deltaTime){
 
 }
 
+void playerFire(Player *player, int mouseX, int mouseY){
+    if (player->projectile_count >= player->projectile_capacity){
+        player->projectile_count = 0; 
+    }
+
+    Projectile *proj = &player->projectiles[player->projectile_count++];
+    
+    double playerCx      = player->playerRect.x + player->playerRect.w / 2.0;
+    double playerTopy = player->playerRect.y;
+
+    int projWidth = 10;
+    int projHeight = 10;
+
+    SDL_Rect projectileRect = {
+        (int)(playerCx - projWidth / 2.0),
+        (int)(playerTopy - projHeight / 2.0),
+        projWidth,
+        projHeight
+    };
+    proj->projectileRect = projectileRect;
+    proj->posX = projectileRect.x;
+    proj->posY = projectileRect.y;
+    proj->active = true;
+    proj->damageValue = 1;
+
+    double projCx = proj->projectileRect.x + proj->projectileRect.w / 2.0;
+    double projCy = proj->projectileRect.y + proj->projectileRect.h / 2.0;
+
+    double targetCx = (double)mouseX;
+    double targetCy = (double)mouseY;
+
+    double dx = targetCx - projCx;
+    double dy = targetCy - projCy;
+
+    double length = sqrt(dx * dx + dy * dy);
+    if (length == 0.0) {
+        proj->velocityX = 0.0;
+        proj->velocityY = 0.0;
+        return;
+    }
+
+    double speed = 300.0;
+    proj->velocityX = (dx / length) * speed;
+    proj->velocityY = (dy / length) * speed;
+}
+void playerProjUpdate(Player *player, double deltaTime){
+    for(int i = 0; i < player->projectile_count; i++){
+        Projectile* currentProjectile = &player->projectiles[i];
+        if(currentProjectile->active == true){
+            double deltaSeconds = deltaTime / 1000.0;
+            currentProjectile->posX += currentProjectile->velocityX * deltaSeconds;
+            currentProjectile->posY += currentProjectile->velocityY * deltaSeconds;
+
+            currentProjectile->projectileRect.x = (int)currentProjectile->posX;
+            currentProjectile->projectileRect.y = (int)currentProjectile->posY;
+        }
+
+        if(currentProjectile->projectileRect.x > SCREEN_WIDTH || currentProjectile->projectileRect.y > SCREEN_HEIGHT + currentProjectile->projectileRect.h){
+            currentProjectile->active = false;
+        }
+    }
+
+}
