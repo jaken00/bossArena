@@ -14,13 +14,12 @@
 - [x] Seperate game logic out into game.h and main
 
 ## Gameplay
-- [/] Player Basic Attack --> Fix this by adding attack cooldown
+- [x] Player Basic Attack
+- [ ] Change Attack Y location based on if above screen mid
 - [ ] Player Roll/Dodge
 - [x] Enemy Following Player
 - [ ] Player Block (Reflect Ability)
-- [ ] Player Reload
 - [ ] Roll Cooldown 
-- [ ] Block Cooldown
 - [ ] Loading Art assets
 - [ ] Enemy Cirlce Attack
 - [ ] Enemy Line attack
@@ -33,8 +32,6 @@
 - [ ] Roll Cooldown Indicator
 - [ ] Block Cooldown Indicator
 - [ ] Start Screen
-- [ ] Ammo indicator
-- [ ] Reload bar
 
 ## Sounds
 - [ ] Enemy Ability sounds
@@ -45,7 +42,6 @@
 - [ ] Win Screen Music
 
 ### 11/18 Plan
-* Player attack cooldown
 * Dodge
 * Player attack collision
 * The Big Refactor (Splitting player and Enemy) 

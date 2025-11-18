@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <math.h>
 #include "game.h"
+#include "player.h"
+#include "enemy.h"
 #include "ui.h"
 #include "render.h"
 
