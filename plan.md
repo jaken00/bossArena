@@ -14,7 +14,7 @@
 - [x] Seperate game logic out into game.h and main
 
 ## Gameplay
-- [ ] Player Basic Attack
+- [/] Player Basic Attack --> Fix this by adding attack cooldown
 - [ ] Player Roll/Dodge
 - [x] Enemy Following Player
 - [ ] Player Block (Reflect Ability)
@@ -43,3 +43,9 @@
 - [ ] Start Screen Music
 - [ ] Loss Screen Music
 - [ ] Win Screen Music
+
+### 11/18 Plan
+* Player attack cooldown
+* Dodge
+* Player attack collision
+* The Big Refactor (Splitting player and Enemy) 
