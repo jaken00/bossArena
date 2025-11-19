@@ -6,30 +6,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "player.h"
+#include "types.h"
 #include "enemy.h"
-
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-
-#define ATTACK_INTERVAL 500
-
-typedef struct {
-    int hp;
-    int maxHp;
-} Health;
-
-typedef struct Projectile{
-    SDL_Rect projectileRect;
-    double posX;
-    double posY;
-    double velocityX;
-    double velocityY;
-    bool active;
-    int damageValue;
-} Projectile;
-
-
 
 
 

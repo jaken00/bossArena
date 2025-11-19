@@ -7,19 +7,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "game.h"
+#include "types.h"
 
-typedef struct {
-    int phase;
-    double movespeed;    
-    SDL_Rect enemyRect;
-    size_t ability_count;
-    Health health;
-
-    Projectile* projectiles;
-    size_t projectile_count;
-    size_t projectile_capacity;
-} Enemy;
 
 Enemy createEnemy();
 

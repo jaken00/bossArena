@@ -6,22 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "game.h"
-
-typedef struct {
-    int mana;
-    double movespeed;
-    Uint32 lastHitTime;
-    Uint32 lastShootTime;
-
-    SDL_Rect playerRect;
-    size_t ability_count;
-    Health health;
-
-    Projectile* projectiles;
-    size_t projectile_count;
-    size_t projectile_capacity;
-} Player;
+#include "types.h"
 
 Player createPlayer();
 void freePlayer(Player *player);
