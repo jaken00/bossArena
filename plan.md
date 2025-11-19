@@ -44,4 +44,3 @@
 ### 11/18 Plan
 * Dodge
 * Player attack collision
-* The Big Refactor (Splitting player and Enemy) 

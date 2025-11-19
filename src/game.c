@@ -25,9 +25,9 @@ void enemyProjectileCollisionCall(Player *player, Enemy *enemy){
     const Uint32 COOLDOWN_DURATION = 500;
     Uint32 now = SDL_GetTicks();
 
-    bool canCollide = (now - player->lastHitTime >= COOLDOWN_DURATION);
+    bool canCollidePlayer = (now - player->lastHitTime >= COOLDOWN_DURATION);
 
-    if(!canCollide) return;
+    if(!canCollidePlayer) return;
 
     for(int i = 0; i < enemy->projectile_count; i++){
         Projectile* currentProjectile = &enemy->projectiles[i];

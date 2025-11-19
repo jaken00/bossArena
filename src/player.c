@@ -63,19 +63,31 @@ void playerFire(Player *player, int mouseX, int mouseY){
     Projectile *proj = &player->projectiles[player->projectile_count++];
     
     double playerCx      = player->playerRect.x + player->playerRect.w / 2.0;
-    double playerTopy = player->playerRect.y;
+    double playerTopy    = player->playerRect.y;
+    double playerBottomY = player->playerRect.y + player->playerRect.h;
 
     int projWidth = 10;
     int projHeight = 10;
+    
+    double trueStart;
+
+    if(player->playerRect.y > SCREEN_HEIGHT / 2) {
+        trueStart = playerTopy;
+    }
+    else{
+        trueStart = playerBottomY;
+    }
 
     SDL_Rect projectileRect = {
         (int)(playerCx - projWidth / 2.0),
-        (int)(playerTopy - projHeight / 2.0),
+        (int)(trueStart - projHeight / 2.0),
         projWidth,
         projHeight
     };
+
     proj->projectileRect = projectileRect;
     proj->posX = projectileRect.x;
+    
     proj->posY = projectileRect.y;
     proj->active = true;
     proj->damageValue = 1;
