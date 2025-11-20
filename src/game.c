@@ -44,6 +44,30 @@ void enemyProjectileCollisionCall(Player *player, Enemy *enemy){
     }
 }
 
+void playerProjectileCollisionCall(Player *player, Enemy *enemy) {
+    const Uint32 COOLDOWN_DURATION = 500;
+    Uint32 now = SDL_GetTicks();
+
+    bool canCollideEnemy = (now - enemy->lastHitTime >= COOLDOWN_DURATION);
+
+    if(!canCollideEnemy) return;
+
+    for(int i = 0; i < player->projectile_count; i++){
+        Projectile* currentProjectile = &player->projectiles[i];
+        if(!currentProjectile->active){
+            continue;
+        }
+
+        if(SDL_HasIntersection(&player->playerRect, &currentProjectile->projectileRect)){
+            currentProjectile->active = false;
+            takeDamage(&enemy->health, currentProjectile->damageValue);
+            enemy->lastHitTime = now;
+            break;
+        }
+    }
+}
+
+
 void takeDamage(Health *health, int damage){
     health->hp -= damage;
 }

@@ -30,22 +30,39 @@ void freePlayer(Player *player){
 
 void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime){
         double movement = player->movespeed * deltaTime;
+        int dashDirectionX = 0;
+        int dashDirectionY = 0;
 
         if (keystate[SDL_SCANCODE_W] && player->playerRect.y > 0){
                 player->playerRect.y -= movement;
+
+                dashDirectionY = -1;
             }
 
         if (keystate[SDL_SCANCODE_S] && player->playerRect.y < SCREEN_HEIGHT - player->playerRect.h){
                 player->playerRect.y += movement;
-        
+
+                dashDirectionY = -1;
             }
 
         if (keystate[SDL_SCANCODE_D] && player->playerRect.x < SCREEN_WIDTH - player->playerRect.w){
             player->playerRect.x += movement;
+            dashDirectionX = 1;
         } 
         if (keystate[SDL_SCANCODE_A] && player->playerRect.x > 0){
             player->playerRect.x -= movement;
+            dashDirectionX = -1;
         } 
+        if(keystate[SDL_SCANCODE_SPACE]){
+            double movement_amountX = (100) * (double)dashDirectionX;
+            double movement_amountY = (100) * (double)dashDirectionY;  
+            
+            player->playerRect.x -= movement_amountX;
+            player->playerRect.y -= movement_amountY;
+
+        }
+        dashDirectionX = 0;
+        dashDirectionY = 0;
 }
 
 void playerFire(Player *player, int mouseX, int mouseY){

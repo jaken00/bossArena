@@ -43,4 +43,3 @@
 
 ### 11/18 Plan
 * Dodge
-* Player attack collision

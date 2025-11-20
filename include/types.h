@@ -46,6 +46,8 @@ typedef struct Player {
 typedef struct Enemy {
     Health health;
 
+    Uint32 lastHitTime;
+
     int phase;
     double movespeed;
 

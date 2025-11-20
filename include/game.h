@@ -18,6 +18,7 @@ void enemy_attack_timer(double deltaTime, double *attackTimer, Enemy *enemy, Pla
 void move_enemy(Enemy *enemy, SDL_Rect *playerRect, double deltaTime);
 bool projectileHit(SDL_Rect *target, SDL_Rect *source);
 void enemyProjectileCollisionCall(Player *player, Enemy *enemy);
+void playerProjectileCollisionCall(Player *player, Enemy *enemy);
 
 void takeDamage(Health *hp, int damage);
 

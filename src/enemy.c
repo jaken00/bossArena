@@ -6,6 +6,8 @@ Enemy createEnemy(){
     enemyHP.hp = 80;
     enemyHP.maxHp = 80;
 
+    enemy.lastHitTime = 0;
+
     enemy.health = enemyHP;
     enemy.phase = 1;
     enemy.movespeed = 200.0 / 1000.0; //conver to milies!
