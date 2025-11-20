@@ -11,7 +11,7 @@
 Player createPlayer();
 void freePlayer(Player *player);
 
-void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime);
+void update_player_movement(Player *player, const Uint8 *keystate, SDL_Event *event, double deltaTime);
 void playerFire(Player *player, int mouseX, int mouseY);
 void playerProjUpdate(Player *player, double deltaTime);
 

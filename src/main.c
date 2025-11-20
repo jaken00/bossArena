@@ -63,14 +63,16 @@ int main(int argc, char* argv[]) {
 
         animation_timer += deltaTime;
         SDL_Event e;
+        const Uint8* keystate = SDL_GetKeyboardState(NULL);
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running = false;
+            //need to make a dash handle player dash fucntion and seperate out dashing from general movement -> or have a timeout for dash which might be better due to needing cooldown anyway? 
         }
 
         int mouseX, mouseY;
         Uint32 mouse_pos = SDL_GetMouseState(&mouseX, &mouseY);
 
-        const Uint8* keystate = SDL_GetKeyboardState(NULL);
+        update_player_movement(&player, keystate, &e, deltaTime);
 
         if(keystate[SDL_SCANCODE_Q]){
             running = false;
@@ -79,7 +81,7 @@ int main(int argc, char* argv[]) {
             playerFire(&player, mouseX, mouseY);
         }
 
-        update_player_movement(&player, keystate, deltaTime);
+        
         enemy_attack_timer(deltaTime, &attackTimer, &enemy, player);
         enemyProjectileCollisionCall(&player, &enemy);
         move_enemy(&enemy, &player.playerRect, deltaTime);

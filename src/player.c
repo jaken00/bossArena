@@ -28,10 +28,14 @@ void freePlayer(Player *player){
     free(player);
 }
 
-void update_player_movement(Player *player, const Uint8 *keystate, double deltaTime){
+void update_player_movement(Player *player, const Uint8 *keystate, SDL_Event *event, double deltaTime){
         double movement = player->movespeed * deltaTime;
         int dashDirectionX = 0;
         int dashDirectionY = 0;
+
+        const Uint32 COOLDOWN_DURATION = 2000; //2 second dash cd
+        Uint32 now = SDL_GetTicks();
+        //bool canCollidePlayer = (now - player->lastHitTime >= COOLDOWN_DURATION); now - player->lastDashTime >= COOLDOWN_DURATION
 
         if (keystate[SDL_SCANCODE_W] && player->playerRect.y > 0){
                 player->playerRect.y -= movement;
@@ -42,7 +46,7 @@ void update_player_movement(Player *player, const Uint8 *keystate, double deltaT
         if (keystate[SDL_SCANCODE_S] && player->playerRect.y < SCREEN_HEIGHT - player->playerRect.h){
                 player->playerRect.y += movement;
 
-                dashDirectionY = -1;
+                dashDirectionY = 1;
             }
 
         if (keystate[SDL_SCANCODE_D] && player->playerRect.x < SCREEN_WIDTH - player->playerRect.w){
@@ -53,16 +57,17 @@ void update_player_movement(Player *player, const Uint8 *keystate, double deltaT
             player->playerRect.x -= movement;
             dashDirectionX = -1;
         } 
-        if(keystate[SDL_SCANCODE_SPACE]){
-            double movement_amountX = (100) * (double)dashDirectionX;
-            double movement_amountY = (100) * (double)dashDirectionY;  
-            
-            player->playerRect.x -= movement_amountX;
-            player->playerRect.y -= movement_amountY;
-
-        }
-        dashDirectionX = 0;
-        dashDirectionY = 0;
+        if (event->type == SDL_KEYDOWN && event->key.repeat == 0 && event->key.keysym.sym == SDLK_e) {
+            printf("E KEY PRESSED\n");
+            int dirX = 0, dirY = 0;
+        //if (keystate[SDL_SCANCODE_W]) dirY = -1;
+        //if (keystate[SDL_SCANCODE_S]) dirY = 1;
+        //if (keystate[SDL_SCANCODE_D]) dirX = 1;
+        //if (keystate[SDL_SCANCODE_A]) dirX = -1;
+        
+        player->playerRect.x += 100 * dashDirectionX;
+        player->playerRect.y += 100 * dashDirectionY;
+    }
 }
 
 void playerFire(Player *player, int mouseX, int mouseY){
