@@ -58,9 +58,11 @@ void playerProjectileCollisionCall(Player *player, Enemy *enemy) {
             continue;
         }
 
-        if(SDL_HasIntersection(&player->playerRect, &currentProjectile->projectileRect)){
+        if(SDL_HasIntersection(&enemy->enemyRect, &currentProjectile->projectileRect)){
             currentProjectile->active = false;
             takeDamage(&enemy->health, currentProjectile->damageValue);
+            printf("ENEMY HP: %d\n", enemy->health.hp);
+            printf("ENEMY PHASE: %d\n", enemy->phase);
             enemy->lastHitTime = now;
             break;
         }

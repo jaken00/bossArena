@@ -14,8 +14,8 @@ Enemy createEnemy(){
 
     enemy.health = enemyHP;
     enemy.phase = 1;
-    enemy.movespeed = 200.0 / 1000.0; //conver to milies!
-    SDL_Rect enemyRect = {SCREEN_WIDTH / 2, 50, 64, 64}; // NEED CHANGE THESE TO DEFINE CONSTS
+    enemy.movespeed = 100.0 / 1000.0; //conver to milies!
+    SDL_Rect enemyRect = {SCREEN_WIDTH / 2, 50, 128, 128}; // NEED CHANGE THESE TO DEFINE CONSTS
     enemy.enemyRect = enemyRect;
     enemy.ability_count = 5;
     
@@ -36,8 +36,8 @@ void fireProjectile(Enemy *enemy, int targetX, int targetY){
     double enemyCx      = enemy->enemyRect.x + enemy->enemyRect.w / 2.0;
     double enemyBottomY = enemy->enemyRect.y + enemy->enemyRect.h;
 
-    int projWidth = 10;
-    int projHeight = 10;
+    int projWidth = 20;
+    int projHeight = 20;
 
     SDL_Rect projectileRect = {
         (int)(enemyCx - projWidth / 2.0),

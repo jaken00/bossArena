@@ -16,6 +16,14 @@ int main(int argc, char* argv[]) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
+    
+    // Initialize SDL_image
+    int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        printf("SDL_image could not initialize! IMG_Error: %s\n", IMG_GetError());
+        return 1;
+    }
+    
     SDL_Window* window = SDL_CreateWindow(
         "Boss Arena",
         SDL_WINDOWPOS_CENTERED,
@@ -32,6 +40,8 @@ int main(int argc, char* argv[]) {
         printf("Unable to Create Renderer");
     }
     
+    // Initialize render textures
+    initRenderTextures(renderer);
 
     //PLAYER AND ENEMY
     Player player = createPlayer();
@@ -75,7 +85,6 @@ int main(int argc, char* argv[]) {
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) running = false;
-            //need to make a dash handle player dash fucntion and seperate out dashing from general movement -> or have a timeout for dash which might be better due to needing cooldown anyway? 
         }
 
         int mouseX, mouseY;
@@ -93,16 +102,18 @@ int main(int argc, char* argv[]) {
         
         enemy_attack_timer(deltaTime, &attackTimer, &enemy, player);
         enemyProjectileCollisionCall(&player, &enemy);
+        playerProjectileCollisionCall(&player, &enemy);
         move_enemy(&enemy, &player.playerRect, deltaTime);
 
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
-        SDL_RenderClear(renderer);
+        // Render background
+        renderBackground(renderer);
+        
+        // Render entities
         renderEntities(renderer, &player.playerRect, &enemy.enemyRect);
-        SDL_SetRenderDrawColor(renderer, 0,0,255,255);
         updateProjectile(&enemy, deltaTime);
         playerProjUpdate(&player, deltaTime);
-        drawProjectiles(renderer, &enemy, &player);
+        renderProjectiles(renderer, &enemy, &player);
         if(enemyP2Attack(&enemy)){
             circleActive = true;
             circleTimer = 0.0;
@@ -174,8 +185,10 @@ int main(int argc, char* argv[]) {
     }
     
     freePlayer(&player);
+    cleanupRenderTextures();
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
+    IMG_Quit();
     SDL_Quit();
     
     return 0;

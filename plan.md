@@ -1,11 +1,11 @@
 # Plan
 
 ## Art
-- [ ] Demon Boss
-- [ ] Priest/Paladin Model
-- [ ] Fireball
-- [ ] "Blue" Fireball (Holy Water)
-- [ ] Boss Fight Arena
+- [x] Demon Boss
+- [x] Priest/Paladin Model
+- [x] Fireball
+- [x] "Blue" Fireball (Holy Water)
+- [x] Boss Fight Arena
 - [ ] Death Screen (stylized AI Gen)
 - [ ] Victory Screen (stylized AI Gen)
 
@@ -15,22 +15,17 @@
 
 ## Gameplay
 - [x] Player Basic Attack
-- [ ] Change Attack Y location based on if above screen mid
-- [ ] Player Roll/Dodge
+- [x] Change Attack Y location based on if above screen mid
+- [x] Player Roll/Dodge
 - [x] Enemy Following Player
-- [ ] Player Block (Reflect Ability)
-- [ ] Roll Cooldown 
-- [ ] Loading Art assets
-- [ ] Enemy Cirlce Attack
+- [x] Roll Cooldown 
+- [x] Loading Art assets
+- [x] Enemy Cirlce Attack
 - [ ] Enemy Line attack
-- [ ] Enemy Cone attack
-- [ ] All attacks (Enrage phase)
 - [x] P1 Enemy Attack collision detection
 
 ## UI
 - [x] Player health bar
-- [ ] Roll Cooldown Indicator
-- [ ] Block Cooldown Indicator
 - [ ] Start Screen
 
 ## Sounds
@@ -40,6 +35,3 @@
 - [ ] Start Screen Music
 - [ ] Loss Screen Music
 - [ ] Win Screen Music
-
-### 11/18 Plan
-* Dodge

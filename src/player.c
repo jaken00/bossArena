@@ -14,7 +14,7 @@ Player createPlayer(){
     player.mana = 10;
     player.movespeed = 500.0 / 1000.0; //deivde by 1k for milisecond conversion
 
-    SDL_Rect playerRect = {10, 10, 32, 32};
+    SDL_Rect playerRect = {(SCREEN_WIDTH / 2) - 32, SCREEN_HEIGHT - 48, 50, 50};
     player.playerRect = playerRect;
     player.ability_count = 4;
 
@@ -89,8 +89,8 @@ void playerFire(Player *player, int mouseX, int mouseY){
     double playerTopy    = player->playerRect.y;
     double playerBottomY = player->playerRect.y + player->playerRect.h;
 
-    int projWidth = 10;
-    int projHeight = 10;
+    int projWidth = 20;
+    int projHeight = 20;
     
     double trueStart;
 
