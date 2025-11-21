@@ -9,6 +9,8 @@ Player createPlayer(){
 
     player.lastHitTime = 0;
     player.lastShootTime = 0;
+    player.lastDashTime = 0;
+
     player.mana = 10;
     player.movespeed = 500.0 / 1000.0; //deivde by 1k for milisecond conversion
 
@@ -29,46 +31,45 @@ void freePlayer(Player *player){
 }
 
 void update_player_movement(Player *player, const Uint8 *keystate, SDL_Event *event, double deltaTime){
-        double movement = player->movespeed * deltaTime;
-        int dashDirectionX = 0;
-        int dashDirectionY = 0;
+    double movement = player->movespeed * deltaTime;
+    int dashDirectionX = 0;
+    int dashDirectionY = 0;
 
-        const Uint32 COOLDOWN_DURATION = 2000; //2 second dash cd
-        Uint32 now = SDL_GetTicks();
-        //bool canCollidePlayer = (now - player->lastHitTime >= COOLDOWN_DURATION); now - player->lastDashTime >= COOLDOWN_DURATION
+    const Uint32 COOLDOWN_DURATION = 5000; 
+    Uint32 now = SDL_GetTicks();
+    bool canDashPlayer = (now - player->lastDashTime >= COOLDOWN_DURATION);
 
-        if (keystate[SDL_SCANCODE_W] && player->playerRect.y > 0){
-                player->playerRect.y -= movement;
+    if (keystate[SDL_SCANCODE_W] && player->playerRect.y > 0){
+        player->playerRect.y -= movement;
+        dashDirectionY = -1;
+    }
 
-                dashDirectionY = -1;
-            }
+    if (keystate[SDL_SCANCODE_S] && player->playerRect.y < SCREEN_HEIGHT - player->playerRect.h){
+        player->playerRect.y += movement;
+        dashDirectionY = 1;
+    }
 
-        if (keystate[SDL_SCANCODE_S] && player->playerRect.y < SCREEN_HEIGHT - player->playerRect.h){
-                player->playerRect.y += movement;
+    if (keystate[SDL_SCANCODE_D] && player->playerRect.x < SCREEN_WIDTH - player->playerRect.w){
+        player->playerRect.x += movement;
+        dashDirectionX = 1;
+    } 
+    if (keystate[SDL_SCANCODE_A] && player->playerRect.x > 0){
+        player->playerRect.x -= movement;
+        dashDirectionX = -1;
+    } 
 
-                dashDirectionY = 1;
-            }
+    bool hasDir = (dashDirectionX != 0 || dashDirectionY != 0);
 
-        if (keystate[SDL_SCANCODE_D] && player->playerRect.x < SCREEN_WIDTH - player->playerRect.w){
-            player->playerRect.x += movement;
-            dashDirectionX = 1;
-        } 
-        if (keystate[SDL_SCANCODE_A] && player->playerRect.x > 0){
-            player->playerRect.x -= movement;
-            dashDirectionX = -1;
-        } 
-        if (event->type == SDL_KEYDOWN && event->key.repeat == 0 && event->key.keysym.sym == SDLK_e) {
-            printf("E KEY PRESSED\n");
-            int dirX = 0, dirY = 0;
-        //if (keystate[SDL_SCANCODE_W]) dirY = -1;
-        //if (keystate[SDL_SCANCODE_S]) dirY = 1;
-        //if (keystate[SDL_SCANCODE_D]) dirX = 1;
-        //if (keystate[SDL_SCANCODE_A]) dirX = -1;
-        
-        player->playerRect.x += 100 * dashDirectionX;
-        player->playerRect.y += 100 * dashDirectionY;
+    if (keystate[SDL_SCANCODE_E] && canDashPlayer && hasDir){
+        int dashDistance = 80;
+
+        player->playerRect.x += dashDirectionX * dashDistance;
+        player->playerRect.y += dashDirectionY * dashDistance;
+
+        player->lastDashTime = now;
     }
 }
+
 
 void playerFire(Player *player, int mouseX, int mouseY){
     const Uint32 COOLDOWN_DURATION = 500;

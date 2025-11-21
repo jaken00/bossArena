@@ -31,6 +31,7 @@ typedef struct Player {
 
     Uint32 lastHitTime;
     Uint32 lastShootTime;
+    Uint32 lastDashTime;
 
     int mana;
     double movespeed;
