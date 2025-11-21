@@ -1,5 +1,8 @@
 #include "enemy.h"
 
+
+
+
 Enemy createEnemy(){
     Enemy enemy;
     Health enemyHP;
@@ -7,6 +10,7 @@ Enemy createEnemy(){
     enemyHP.maxHp = 80;
 
     enemy.lastHitTime = 0;
+    enemy.p2lastAttackTime = 0;
 
     enemy.health = enemyHP;
     enemy.phase = 1;
@@ -69,6 +73,12 @@ void fireProjectile(Enemy *enemy, int targetX, int targetY){
 
 }
 
+int randomRadius(){
+    int radius = 100 + rand() % 150;
+    return radius;
+}
+
+
 void updateProjectile(Enemy *enemy, double deltaTime){
     for(int i = 0; i < enemy->projectile_count; i++){
         Projectile* currentProjectile = &enemy->projectiles[i];
@@ -85,6 +95,22 @@ void updateProjectile(Enemy *enemy, double deltaTime){
             currentProjectile->active = false;
         }
     }
+}
+
+bool enemyP2Attack(Enemy *enemy){
+    
+    printf("CALLED IN ENEMY P2 ATTACK!\n");
+    if(enemy->phase < 0) return false; // CHANGE TO 2 TO HANDLE P2 ATTACKS!!!
+
+    Uint32 now = SDL_GetTicks();
+    Uint32 attack_cooldown = 5000;
+    bool canAttack = (now - enemy->p2lastAttackTime >= attack_cooldown);
+
+    if(canAttack){
+        enemy->p2lastAttackTime = now;
+        return true;
+    }
+    return false;
 }
 
 void monitorEnemyPhase(Enemy *enemy){

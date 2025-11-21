@@ -48,6 +48,7 @@ typedef struct Enemy {
     Health health;
 
     Uint32 lastHitTime;
+    Uint32 p2lastAttackTime;
 
     int phase;
     double movespeed;

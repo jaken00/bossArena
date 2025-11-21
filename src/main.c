@@ -54,6 +54,11 @@ int main(int argc, char* argv[]) {
     
     SDL_Rect enemyAbilityRect;
     SDL_ShowCursor(true);
+
+
+    bool circleActive = false;
+    int circleCx, circleCy, circleRadius;
+
     while(running){
         /*  DELTA TIME    */
         int now = SDL_GetPerformanceCounter();
@@ -87,7 +92,6 @@ int main(int argc, char* argv[]) {
         move_enemy(&enemy, &player.playerRect, deltaTime);
 
 
-        
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // need to first drwa balck background
         SDL_RenderClear(renderer);
         renderEntities(renderer, &player.playerRect, &enemy.enemyRect);
@@ -95,6 +99,18 @@ int main(int argc, char* argv[]) {
         updateProjectile(&enemy, deltaTime);
         playerProjUpdate(&player, deltaTime);
         drawProjectiles(renderer, &enemy, &player);
+        if(enemyP2Attack(&enemy)){
+            circleActive = true;
+            circleRadius = randomRadius();
+            circleCx = circleRadius + rand() % (SCREEN_WIDTH - 2 * circleRadius);
+            circleCy = circleRadius + rand() % (SCREEN_HEIGHT - 2 * circleRadius);
+        }
+
+        if(circleActive){
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 150);
+            draw_filled_circle(renderer, circleCx, circleCy, circleRadius);
+        }
+        
 
         if(animation_timer >= animation_frame_time){
             animation_timer -= animation_frame_time;
