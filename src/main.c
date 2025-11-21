@@ -58,6 +58,10 @@ int main(int argc, char* argv[]) {
 
     bool circleActive = false;
     int circleCx, circleCy, circleRadius;
+    double circleTimer = 0.0;
+    bool circleDamagePhase = false;
+    const double CIRCLE_WARNING_TIME = 500.0; // 0.5 seconds in milliseconds
+    const double CIRCLE_DAMAGE_TIME = 5000.0; // 5 seconds in milliseconds
 
     while(running){
         /*  DELTA TIME    */
@@ -101,14 +105,55 @@ int main(int argc, char* argv[]) {
         drawProjectiles(renderer, &enemy, &player);
         if(enemyP2Attack(&enemy)){
             circleActive = true;
+            circleTimer = 0.0;
+            circleDamagePhase = false;
             circleRadius = randomRadius();
             circleCx = circleRadius + rand() % (SCREEN_WIDTH - 2 * circleRadius);
             circleCy = circleRadius + rand() % (SCREEN_HEIGHT - 2 * circleRadius);
         }
 
         if(circleActive){
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 150);
-            draw_filled_circle(renderer, circleCx, circleCy, circleRadius);
+            circleTimer += deltaTime;
+            
+            // Check if we should transition from warning to damage phase
+            if(circleTimer >= CIRCLE_WARNING_TIME && !circleDamagePhase){
+                circleDamagePhase = true;
+            }
+            
+            if(circleTimer >= CIRCLE_WARNING_TIME + CIRCLE_DAMAGE_TIME){
+                circleActive = false;
+                circleDamagePhase = false;
+            } else {
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+                if(circleDamagePhase){
+                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 120);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 80);
+                }
+                draw_filled_circle(renderer, circleCx, circleCy, circleRadius);
+                
+                SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+                
+                if(circleDamagePhase){
+                    int playerCenterX = player.playerRect.x + player.playerRect.w / 2;
+                    int playerCenterY = player.playerRect.y + player.playerRect.h / 2;
+                    
+                    int dx = playerCenterX - circleCx;
+                    int dy = playerCenterY - circleCy;
+                    double distance = sqrt(dx * dx + dy * dy);
+                    
+                    if(distance <= circleRadius){
+                        const Uint32 COOLDOWN_DURATION = 500;
+                        Uint32 now = SDL_GetTicks();
+                        bool canCollidePlayer = (now - player.lastHitTime >= COOLDOWN_DURATION);
+                        
+                        if(canCollidePlayer){
+                            takeDamage(&player.health, 1); 
+                            player.lastHitTime = now;
+                        }
+                    }
+                }
+            }
         }
         
 

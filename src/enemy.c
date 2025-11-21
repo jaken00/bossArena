@@ -99,8 +99,7 @@ void updateProjectile(Enemy *enemy, double deltaTime){
 
 bool enemyP2Attack(Enemy *enemy){
     
-    printf("CALLED IN ENEMY P2 ATTACK!\n");
-    if(enemy->phase < 0) return false; // CHANGE TO 2 TO HANDLE P2 ATTACKS!!!
+    if(enemy->phase < 2) return false; 
 
     Uint32 now = SDL_GetTicks();
     Uint32 attack_cooldown = 5000;
